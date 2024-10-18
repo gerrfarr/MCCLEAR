@@ -10,7 +10,7 @@ parser.add_argument('--sim_ids', action="store", dest='sim_ids', default="0-399"
 parser.add_argument('--n_sim_offset', action="store", dest='n_sim_offset', default=None, type=int, help='Offset between input and reconstruction simulation IDs (e.g., if input simulations are 0-399 and reconstruction simulations are 1000-1399, n_sim_offset=1000).')
 parser.add_argument("--planck_sims", dest='planck_sims', action='store_true', default=False, help='Use Planck lensing reconstruction simulations.')
 
-parser.add_argument('--use_mpi', action="store_true", dest='use_mpi', default=True, help='Use MPI for parallel processing.')
+parser.add_argument('--use_mpi', action="store_true", dest='use_mpi', default=False, help='Use MPI for parallel processing.')
 parser.add_argument('--config_path', action="store", dest='config_path', default=file_path+"config.yml", type=str, help='Path to the configuration file.')
 
 parser.add_argument('--output_dir', action="store", dest='output_dir', default="", type=str, help='Directory to save the output files.')
