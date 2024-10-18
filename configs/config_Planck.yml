@@ -1,0 +1,22 @@
+sim_ids: 0-400
+n_sim_offset: -200
+planck_sims: True
+output_dir: /path/to/output
+kappa_recon_sims_path: /path/to/kappa_recon_sims
+kappa_recon_sims_prefix: klm_sim_
+kappa_recon_sims_suffix: _p
+kappa_recon_id_format: {:04}
+kappa_input_id_format: {:04}
+
+kappa_mask_path: /path/to/kappa_mask.fits
+lss_mask_path: /path/to/lss_mask.fits
+extra_mask:
+
+nside: 2048
+lmax: 4000
+rotate_kappa_alm: False # this is only required if the mask is specified in ecliptic coordinates and the input kappa maps are in galactic coordinates (rotating the mask is discouraged due to numerical issues)
+mask_kappa_recon: True
+kappa_mask_is_cmb_mask: False
+use_joined_mask_kappa: False
+use_joined_mask_lss: True
+use_namaster: False
