@@ -36,8 +36,8 @@ parser.add_argument('--lmax', action="store", dest='lmax', default=4000, type=in
 parser.add_argument('--rotate_kappa_alm', action='store_true', dest='rotate_input_kappa', default=None, help='Rotate kappa alm from galactic to equatorial coordinates.')
 parser.add_argument('--mask_kappa_recon', action="store_true", dest='mask_kappa_recon', default=False, help='Apply mask to kappa reconstruction.')
 parser.add_argument('--kappa_mask_is_cmb_mask', action="store_true", dest='kappa_mask_is_cmb_mask', default=False, help='Indicate that the provided kappa mask is the CMB mask, and the effective kappa mask is the square of this mask.')
-parser.add_argument('--use_joined_mask_kappa', action="store_true", dest='use_joined_mask', default=False, help='Use the joined mask for kappa.')
-parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_joined_mask', default=False, help='Use the joined mask for LSS.')
+parser.add_argument('--use_joined_mask_kappa', action="store_true", dest='use_joined_mask_kappa', default=False, help='Use the joined mask for kappa.')
+parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_joined_mask_lss', default=False, help='Use the joined mask for the LSS tracer.')
 parser.add_argument('--use_namaster', action="store_true", dest='use_namaster', default=False, help='Use NaMaster for power spectrum estimation.')
 args = parser.parse_args()
 
