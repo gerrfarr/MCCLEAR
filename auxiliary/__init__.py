@@ -1,1 +1,1 @@
-from auxiliary_functions import *
+from .auxiliary_functions import *
