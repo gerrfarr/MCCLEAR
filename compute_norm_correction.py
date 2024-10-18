@@ -11,7 +11,7 @@ parser.add_argument('--n_sim_offset', action="store", dest='n_sim_offset', defau
 parser.add_argument("--planck_sims", dest='planck_sims', action='store_true', default=False, help='Use Planck lensing reconstruction simulations.')
 
 parser.add_argument('--use_mpi', action="store_true", dest='use_mpi', default=False, help='Use MPI for parallel processing.')
-parser.add_argument('--config_path', action="store", dest='config_path', default=file_path+"config.yml", type=str, help='Path to the configuration file.')
+parser.add_argument('--config_path', action="store", dest='config_path', default=file_path+"/config.yml", type=str, help='Path to the configuration file.')
 
 parser.add_argument('--output_dir', action="store", dest='output_dir', default="", type=str, help='Directory to save the output files.')
 parser.add_argument('--output_prefix', action="store", dest='output_prefix', default="", type=str, help='Prefix for the output files.')
@@ -65,7 +65,7 @@ if args.use_namaster:
 ## load and process masks
 mask = read_mask(args.kappa_mask_path, args.nside)
 
-if not args.apply_kappa_mask:
+if not args.kappa_mask_is_cmb_mask:
     kappa_mask = mask**2  # squared because this is the CMB map and kappa is quadratic in the mask
 else:
     kappa_mask = mask
