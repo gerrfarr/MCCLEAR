@@ -109,8 +109,10 @@ if rank == 0:
     else:
         sim_ids_split = all_sim_ids
 
-if not args.use_mpi:
+if args.use_mpi:
     sim_ids2process = comm.scatter(sim_ids_split, root=0)
+else:
+    sim_ids2process = sim_ids_split
 
 cl_outputs = np.ones((len(sim_ids2process), 2,  args.lmax + 1))
 
