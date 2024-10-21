@@ -7,7 +7,7 @@ from auxiliary import read_config_default_vals
 parser = argparse.ArgumentParser()
 # what to do
 parser.add_argument('--sim_ids', action="store", dest='sim_ids', default="0-399", type=str, help='Range of simulation IDs to use, can be a range separated by a dash or several ranges separated by a comma.')
-parser.add_argument('--n_sim_offset', action="store", dest='n_sim_offset', default=None, type=int, help='Offset between input and reconstruction simulation IDs (e.g., if input simulations are 0-399 and reconstruction simulations are 1000-1399, n_sim_offset=1000).')
+parser.add_argument('--n_sim_offset', action="store", dest='n_sim_offset', default=0, type=int, help='Offset between input and reconstruction simulation IDs (e.g., if input simulations are 0-399 and reconstruction simulations are 1000-1399, n_sim_offset=1000).')
 parser.add_argument("--planck_sims", dest='planck_sims', action='store_true', default=False, help='Use Planck lensing reconstruction simulations.')
 
 parser.add_argument('--use_mpi', action="store_true", dest='use_mpi', default=False, help='Use MPI for parallel processing.')
@@ -16,13 +16,13 @@ parser.add_argument('--config_path', action="store", dest='config_path', default
 parser.add_argument('--output_dir', action="store", dest='output_dir', default="", type=str, help='Directory to save the output files.')
 parser.add_argument('--output_prefix', action="store", dest='output_prefix', default="", type=str, help='Prefix for the output files.')
 
-parser.add_argument('--kappa_recon_sims_path', action="store", dest='kappa_sims_path', type=str, default=None, help='Path to the kappa reconstruction simulations.')
-parser.add_argument('--kappa_recon_sims_prefix', action="store", dest='kappa_sims_prefix', type=str, default="", help='Prefix for the kappa reconstruction simulation files.')
-parser.add_argument('--kappa_recon_sims_suffix', action="store", dest='kappa_sims_suffix', type=str, default="", help='Suffix for the kappa reconstruction simulation files.')
+parser.add_argument('--kappa_recon_sims_path', action="store", dest='kappa_recon_sims_path', type=str, default=None, help='Path to the kappa reconstruction simulations.')
+parser.add_argument('--kappa_recon_sims_prefix', action="store", dest='kappa_recon_sims_prefix', type=str, default="", help='Prefix for the kappa reconstruction simulation files.')
+parser.add_argument('--kappa_recon_sims_suffix', action="store", dest='kappa_recon_sims_suffix', type=str, default="", help='Suffix for the kappa reconstruction simulation files.')
 parser.add_argument('--kappa_recon_id_format', action="store_true", dest='kappa_recon_id_format', default=None, help='Format for the kappa reconstruction simulation IDs.')
-parser.add_argument('--kappa_input_sims_path', action='store', dest='signal_only_kappa_path', default=None, help='Path to the input kappa simulations.')
-parser.add_argument('--kappa_input_sims_prefix', action="store", dest='kappa_sims_prefix', type=str, default="", help='Prefix for the input kappa simulation files.')
-parser.add_argument('--kappa_input_sims_suffix', action="store", dest='kappa_sims_suffix', type=str, default="", help='Suffix for the input kappa simulation files.')
+parser.add_argument('--kappa_input_sims_path', action='store', dest='kappa_input_sims_path', default=None, help='Path to the input kappa simulations.')
+parser.add_argument('--kappa_input_sims_prefix', action="store", dest='kappa_input_sims_prefix', type=str, default="", help='Prefix for the input kappa simulation files.')
+parser.add_argument('--kappa_input_sims_suffix', action="store", dest='kappa_input_sims_suffix', type=str, default="", help='Suffix for the input kappa simulation files.')
 parser.add_argument('--kappa_input_id_format', action="store_true", dest='kappa_recon_id_format', default='', help='Format for the input kappa simulation IDs, provided in as python format string (e.g., \'{:04}\' for four digits with leading zeros).')
 
 parser.add_argument('--kappa_mask_path', action="store", dest='kappa_mask_path', type=str, default=None, help='Path to the kappa mask file.')
@@ -43,6 +43,7 @@ args = parser.parse_args()
 
 args = read_config_default_vals(args.config_path, args)
 
+print(args)
 if args.use_mpi:
     from mpi4py import MPI
 
@@ -122,7 +123,7 @@ if args.rotate_kappa_alm:
 for n, i in enumerate(sim_ids2process):
     print(f"Reading kappa sim {i}")
 
-    recon_alm = hp.read_alm(args.kappa_sims_path+args.kappa_sims_prefix + f"{i+args.n_sim_offset:{args.kappa_recon_id_format}}{args.kappa_sims_suffix}.fits").astype('complex')  # reconstructed kappa
+    recon_alm = hp.read_alm(args.kappa_recon_sims_path + args.kappa_sims_prefix + f"{i+args.n_sim_offset:{args.kappa_recon_id_format}}{args.kappa_sims_suffix}.fits").astype('complex')  # reconstructed kappa
     if args.rotate_kappa_alm:
         print(f"Rotating sim {i} reconstruction into equatorial coordinates...")
         recon_alm = hp_rot_gc.rotate_alm(recon_alm)
