@@ -2,14 +2,15 @@ import healpy as hp
 import numpy as np
 import yaml
 
-def read_config_default_vals(config_path, args):
+def read_config_default_vals(config_path, args, sys_argv=[]):
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
+    # Extract argument names from sys_argv
+    provided_args = {arg.lstrip('-').split('=')[0] for arg in sys_argv}
+
     for key in config.keys():
-        if key in vars(args) and getattr(args, key) is None:
-            setattr(args, key, config[key])
-        elif key in vars(args) and isinstance(getattr(args, key), bool) and not getattr(args, key) and config[key]:
+        if key in vars(args) and key not in provided_args:
             setattr(args, key, config[key])
 
     return args
