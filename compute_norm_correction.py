@@ -19,11 +19,13 @@ parser.add_argument('--output_prefix', action="store", dest='output_prefix', def
 parser.add_argument('--kappa_recon_sims_path', action="store", dest='kappa_recon_sims_path', type=str, default=None, help='Path to the kappa reconstruction simulations.')
 parser.add_argument('--kappa_recon_sims_prefix', action="store", dest='kappa_recon_sims_prefix', type=str, default="", help='Prefix for the kappa reconstruction simulation files.')
 parser.add_argument('--kappa_recon_sims_suffix', action="store", dest='kappa_recon_sims_suffix', type=str, default="", help='Suffix for the kappa reconstruction simulation files.')
-parser.add_argument('--kappa_recon_id_format', action="store_true", dest='kappa_recon_id_format', default=None, help='Format for the kappa reconstruction simulation IDs.')
-parser.add_argument('--kappa_input_sims_path', action='store', dest='kappa_input_sims_path', default=None, help='Path to the input kappa simulations.')
+parser.add_argument('--kappa_recon_sims_id_format', action="store", dest='kappa_recon_sims_id_format', type=str, default='', help='Format for the kappa reconstruction simulation IDs, provided in as python format string (e.g., \'04\' for four digits with leading zeros).')
+
+parser.add_argument('--kappa_input_sims_path', action='store', dest='kappa_input_sims_path', type=str, default=None, help='Path to the input kappa simulations.')
 parser.add_argument('--kappa_input_sims_prefix', action="store", dest='kappa_input_sims_prefix', type=str, default="", help='Prefix for the input kappa simulation files.')
 parser.add_argument('--kappa_input_sims_suffix', action="store", dest='kappa_input_sims_suffix', type=str, default="", help='Suffix for the input kappa simulation files.')
-parser.add_argument('--kappa_input_id_format', action="store_true", dest='kappa_recon_id_format', default='', help='Format for the input kappa simulation IDs, provided in as python format string (e.g., \'{:04}\' for four digits with leading zeros).')
+parser.add_argument('--kappa_input_sims_id_format', action="store", dest='kappa_input_sims_id_format', type=str, default='', help='Format for the input kappa simulation IDs, provided in as python format string (e.g., \'04\' for four digits with leading zeros).')
+parser.add_argument('--kappa_input_sims_hdu', action="store", dest='kappa_input_sims_hdu', type=int, default=1, help='Does the kappa input file contain for than one map, e.g. the unlensed or lensed primary CMB? If so specify the index of the lensing field, otherwise leaf blank.')
 
 parser.add_argument('--kappa_mask_path', action="store", dest='kappa_mask_path', type=str, default=None, help='Path to the kappa mask file.')
 parser.add_argument('--lss_mask_path', action="store", dest='lss_mask_path', type=str, default=None, help='Path to the LSS mask file.')
@@ -123,7 +125,7 @@ if args.rotate_kappa_alm:
 for n, i in enumerate(sim_ids2process):
     print(f"Reading kappa sim {i}")
 
-    recon_alm = hp.read_alm(args.kappa_recon_sims_path + args.kappa_sims_prefix + f"{i+args.n_sim_offset:{args.kappa_recon_id_format}}{args.kappa_sims_suffix}.fits").astype('complex')  # reconstructed kappa
+    recon_alm = hp.read_alm(args.kappa_recon_sims_path + args.kappa_recon_sims_prefix + f"{i+args.n_sim_offset:{args.kappa_recon_sims_id_format}}{args.kappa_recon_sims_suffix}.fits").astype('complex')  # reconstructed kappa
     if args.rotate_kappa_alm:
         print(f"Rotating sim {i} reconstruction into equatorial coordinates...")
         recon_alm = hp_rot_gc.rotate_alm(recon_alm)
@@ -141,7 +143,7 @@ for n, i in enumerate(sim_ids2process):
 
 
     print(f"Loading signal for sim {i}...")
-    input_kappa_alm_raw = phi2kappa(hp.read_alm(args.signal_only_kappa_path + f"{i:{args.kappa_input_id_format}}.fits", hdu=4).astype('complex'))
+    input_kappa_alm_raw = phi2kappa(hp.read_alm(args.kappa_input_sims_path + args.kappa_input_sims_prefix + f"{i:{args.kappa_input_sims_id_format}}{args.kappa_input_sims_suffix}.fits", hdu=args.kappa_input_sims_hdu).astype('complex'))
     if args.rotate_kappa_alm:
         print(f"Rotating sim {i} input into equatorial coordinates...")
         input_kappa_alm_raw = hp_rot_gc.rotate_alm(input_kappa_alm_raw)
