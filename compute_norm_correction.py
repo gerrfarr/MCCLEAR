@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 file_path = os.path.abspath(os.path.dirname(__file__))
 import argparse
@@ -41,7 +41,7 @@ parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_join
 parser.add_argument('--use_namaster', action="store_true", dest='use_namaster', default=False, help='Use NaMaster for power spectrum estimation.')
 args = parser.parse_args()
 
-args = read_config_default_vals(args.config_path, args)
+args = read_config_default_vals(args.config_path, args, sys.argv)
 
 print(args)
 if args.use_mpi:
