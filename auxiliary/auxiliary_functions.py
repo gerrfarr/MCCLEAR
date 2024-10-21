@@ -32,7 +32,7 @@ def read_pixell_map_as_hp(path, nside):
 def phi2kappa(phi_alm):
     lmax = hp.Alm.getlmax(phi_alm.size)
     l = np.arange(lmax + 1)
-    return hp.almxfl(alm=phi_alm, lfilter=l * (l + 1) / 2)
+    return hp.almxfl(alm=phi_alm, fl=l * (l + 1) / 2)
 
 def read_mask(path, nside):
     try:
