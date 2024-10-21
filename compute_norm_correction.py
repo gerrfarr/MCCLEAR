@@ -33,7 +33,7 @@ parser.add_argument('--kappa_mean_field_path', action='store', dest='kappa_mean_
 
 parser.add_argument('--nside', action="store", dest='nside', default=None, type=int, help='Resolution parameter for HEALPix maps.')
 parser.add_argument('--lmax', action="store", dest='lmax', default=4000, type=int, help='Maximum multipole for spherical harmonics.')
-parser.add_argument('--rotate_kappa_alm', action='store_true', dest='rotate_input_kappa', default=None, help='Rotate kappa alm from galactic to equatorial coordinates.')
+parser.add_argument('--rotate_kappa_alm', action='store_true', dest='rotate_kappa_alm', default=None, help='Rotate kappa alm from galactic to equatorial coordinates.')
 parser.add_argument('--mask_kappa_recon', action="store_true", dest='mask_kappa_recon', default=False, help='Apply mask to kappa reconstruction.')
 parser.add_argument('--kappa_mask_is_cmb_mask', action="store_true", dest='kappa_mask_is_cmb_mask', default=False, help='Indicate that the provided kappa mask is the CMB mask, and the effective kappa mask is the square of this mask.')
 parser.add_argument('--use_joined_mask_kappa', action="store_true", dest='use_joined_mask_kappa', default=False, help='Use the joined mask for kappa.')
