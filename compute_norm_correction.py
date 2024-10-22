@@ -172,10 +172,9 @@ for n, i in enumerate(sim_ids2process):
 
 if args.use_mpi:
     cl_outputs = comm.gather(cl_outputs, root=0)
-
-if rank==0:
     cl_outputs = np.concatenate(cl_outputs, axis=0)
 
+if rank==0:
     mean_input_spec = np.mean(cl_outputs[:,1], axis=0)
     mean_recon_spec = np.mean(cl_outputs[:,0], axis=0)
     norm = np.mean(mean_input_spec/mean_recon_spec)
