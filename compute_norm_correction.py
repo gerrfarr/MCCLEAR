@@ -123,7 +123,7 @@ if args.use_namaster:
     import pymaster as nmt
     wkg = nmt.NmtWorkspace()
     wkg.read_from(args.namaster_workspace_path)
-    print(f"Loaded Nmt workspace from path {args.namaster_worspace_path}.")
+    print(f"Loaded Nmt workspace from path {args.namaster_workspace_path}.")
 
     def measure_cl_function(alm1, alm2):
         return wkg.decouple_cell(hp.alm2cl(alm1, alm2))
