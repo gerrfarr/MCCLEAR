@@ -140,18 +140,19 @@ if args.use_namaster:
         return wkg.decouple_cell([trim_or_pad_cls(hp.alm2cl(alm1, alm2), bpw.shape[-1], pad_value=0)])[0]
 
 elif args.bin_norm_correction:
+    assert args.bin_edges is not None, "If computing binned norm correction, bin edges must be provided."
     bin_edges = np.array(args.bin_edges.split(',')).astype(int)
     ells = bin_spectrum(np.arange(0, np.max(bin_edges) + 1), np.arange(0, np.max(bin_edges) + 1), bin_edges, ell_weighted=args.ell_weighted_binning)
 
     def measure_cl_function(alm1, alm2):
-        cls = trim_or_pad_cls(hp.alm2cl(alm1, alm2), np.max(bin_edges), pad_value=np.nan)
+        cls = hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), args.lmax, np.max(bin_edges)]))
         return bin_spectrum(np.arange(0, len(cls)), cls, bin_edges, ell_weighted=args.ell_weighted_binning)
 
 else:
     ells = np.arange(0, args.lmax + 1)
 
     def measure_cl_function(alm1, alm2):
-        return trim_or_pad_cls(hp.alm2cl(alm1, alm2), args.lmax+1, pad_value=np.nan) / w_fac_kg
+        return trim_or_pad_cls(hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), args.lmax])) / w_fac_kg, args.lmax+1, pad_value=np.nan)
 
 
 cl_outputs = np.full((len(sim_ids2process), 2, len(ells)), np.nan)

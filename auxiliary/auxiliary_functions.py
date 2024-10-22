@@ -62,21 +62,13 @@ def trim_or_pad_cls(arr, target_length, pad_value=np.nan):
 
 
 def bin_spectrum(ells, cells, bin_edges, ell_weighted=False):
-    num_bins = len(bin_edges) - 1
-    num_ells = len(ells)
+    binned_cells = np.zeros(len(bin_edges) - 1)
 
-    # Create the binning matrix
-    bin_matrix = np.zeros((num_bins, num_ells))
-
-    for i in range(num_bins):
+    for i in range(len(bin_edges) - 1):
         bin_mask = (ells >= bin_edges[i]) & (ells < bin_edges[i + 1])
-        bin_matrix[i, bin_mask] = 1 if not ell_weighted else ells[bin_mask]
-
-    # Normalize the binning matrix
-    bin_weights_sum = bin_matrix.sum(axis=1, keepdims=True)
-    bin_matrix /= np.divide(bin_matrix, bin_weights_sum, where=bin_weights_sum != 0)
-
-    # Compute the binned power spectrum
-    binned_cells = bin_matrix @ cells
+        if np.any(bin_mask):
+            binned_cells[i] = np.mean(cells[bin_mask]) if not ell_weighted else np.sum(ells[bin_mask] * cells[bin_mask]) / np.sum(ells[bin_mask])
+        else:
+            binned_cells[i] = np.nan  # or some other placeholder for empty bins
 
     return binned_cells
