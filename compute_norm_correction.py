@@ -133,7 +133,7 @@ if args.use_namaster:
     wkg.read_from(args.namaster_workspace_path)
     print(f"Loaded Nmt workspace from path {args.namaster_workspace_path}.")
 
-    bpw = wkg.get_bandpower_windows()[0]
+    bpw = wkg.get_bandpower_windows()[0,:,0,:]
     ells = bpw @ np.arange(0, bpw.shape[-1])
 
     def measure_cl_function(alm1, alm2):
