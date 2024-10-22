@@ -176,6 +176,6 @@ if args.use_mpi:
 if rank==0:
     mean_input_spec = np.mean(cl_outputs[:,1], axis=0)
     mean_recon_spec = np.mean(cl_outputs[:,0], axis=0)
-    norm = np.mean(mean_input_spec/mean_recon_spec)
+    norm = mean_input_spec/mean_recon_spec
     err_norm = norm * np.sqrt((np.std(cl_outputs[:,0], axis=0)**2/mean_recon_spec**2 + np.std(cl_outputs[:,1], axis=0)**2/mean_input_spec**2)/len(cl_outputs))
     np.savetxt(args.output_dir + args.output_prefix + f"norm_correction_{args.sim_ids}.dat", np.vstack([ells, norm, err_norm]).T, header="ell, norm_correction, sigma(norm_correction)")
