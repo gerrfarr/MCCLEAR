@@ -186,8 +186,8 @@ for n, i in enumerate(sim_ids2process):
     input_kappa_alm_kmask = hp.map2alm(input_kappa_alm * kappa_mask_final, lmax=lmax)
     input_kappa_alm_lssmask = hp.map2alm(input_kappa_alm * lss_mask_final, lmax=lmax)
 
-    cl_outputs[n, 0, :lmax+1] = measure_cl_function(recon_alm, input_kappa_alm_lssmask)
-    cl_outputs[n, 1, :lmax+1] = measure_cl_function(input_kappa_alm_kmask, input_kappa_alm_lssmask)
+    cl_outputs[n, 0] = measure_cl_function(recon_alm, input_kappa_alm_lssmask)
+    cl_outputs[n, 1] = measure_cl_function(input_kappa_alm_kmask, input_kappa_alm_lssmask)
 
 if args.use_mpi:
     cl_outputs = comm.gather(cl_outputs, root=0)
