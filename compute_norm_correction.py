@@ -47,7 +47,6 @@ args = parser.parse_args()
 
 args = read_config_default_vals(args.config_path, args, sys.argv)
 
-print(args)
 if args.use_mpi:
     from mpi4py import MPI
 
