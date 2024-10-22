@@ -43,6 +43,9 @@ parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_join
 parser.add_argument('--use_namaster', action="store_true", dest='use_namaster', default=False, help='Use NaMaster for power spectrum estimation.')
 parser.add_argument('--namaster_workspace_path', action="store", dest='namaster_workspace_path', default=None, help='Path to the NaMaster workspace file.')
 
+parser.add_argument('--save_sim_spectra', action="store_true", dest='save_sim_spectra', default=None, help='Whether to save the simulated power spectra.')
+
+
 args = parser.parse_args()
 
 args = read_config_default_vals(args.config_path, args, sys.argv)
@@ -174,8 +177,10 @@ if args.use_mpi:
     cl_outputs = np.concatenate(cl_outputs, axis=0)
 
 if rank==0:
+    if args.save_sim_spectra:
+        np.save(args.output_dir + args.output_prefix + f"sim_spectra_{args.sim_ids.replace(',', '+')}.npy", np.vstack([ells, cl_outputs[:,0], cl_outputs[:,1]]).T)
     mean_input_spec = np.mean(cl_outputs[:,1], axis=0)
     mean_recon_spec = np.mean(cl_outputs[:,0], axis=0)
     norm = mean_input_spec/mean_recon_spec
-    err_norm = norm * np.sqrt((np.std(cl_outputs[:,0], axis=0)**2/mean_recon_spec**2 + np.std(cl_outputs[:,1], axis=0)**2/mean_input_spec**2)/len(cl_outputs))
-    np.savetxt(args.output_dir + args.output_prefix + f"norm_correction_{args.sim_ids}.dat", np.vstack([ells, norm, err_norm]).T, header="ell, norm_correction, sigma(norm_correction)")
+    err_norm = np.fabs(norm) * np.sqrt((np.std(cl_outputs[:,0], axis=0)**2/mean_recon_spec**2 + np.std(cl_outputs[:,1], axis=0)**2/mean_input_spec**2)/len(cl_outputs))
+    np.savetxt(args.output_dir + args.output_prefix + f"norm_correction_{args.sim_ids.replace(',', '+')}.dat", np.vstack([ells, norm, err_norm]).T, header="ell, norm_correction, sigma(norm_correction)")
