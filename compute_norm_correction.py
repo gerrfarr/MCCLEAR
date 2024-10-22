@@ -41,6 +41,8 @@ parser.add_argument('--kappa_mask_is_cmb_mask', action="store_true", dest='kappa
 parser.add_argument('--use_joined_mask_kappa', action="store_true", dest='use_joined_mask_kappa', default=False, help='Use the joined mask for kappa.')
 parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_joined_mask_lss', default=False, help='Use the joined mask for the LSS tracer.')
 parser.add_argument('--use_namaster', action="store_true", dest='use_namaster', default=False, help='Use NaMaster for power spectrum estimation.')
+parser.add_argument('--namaster_workspace_path', action="store", dest='namaster_workspace_path', default=None, help='Path to the NaMaster workspace file.')
+
 args = parser.parse_args()
 
 args = read_config_default_vals(args.config_path, args, sys.argv)
@@ -61,9 +63,6 @@ else:
 import healpy as hp
 import numpy as np
 from auxiliary import parse_ranges, phi2kappa, read_mask
-
-if args.use_namaster:
-    import pymaster as nmt
 
 ## load and process masks
 mask = read_mask(args.kappa_mask_path, args.nside)
@@ -100,9 +99,7 @@ if args.kappa_mean_field_path is not None:
 else:
     mean_field = 0
 
-
 ## set up sim ids to process
-
 sim_ids2process = None
 sim_ids_split = None
 if rank == 0:
@@ -121,6 +118,24 @@ cl_outputs = np.ones((len(sim_ids2process), 2,  args.lmax + 1))
 
 if args.rotate_kappa_alm:
     hp_rot_gc = hp.rotator.Rotator(coord=["G", "C"])
+
+if args.use_namaster:
+    assert args.namaster_workspace_path is not None, "If using NaMaster, a workspace path must be provided."
+    import pymaster as nmt
+    wkg = nmt.NmtWorkspace()
+    wkg.read_from(args.namaster_workspace_path)
+    print(f"Loaded Nmt workspace from path {args.namaster_worspace_path}.")
+
+    def measure_cl_function(alm1, alm2):
+        return wkg.decouple_cell(hp.alm2cl(alm1, alm2))
+
+    bpw = wkg.get_bandpower_windows()[0]
+    ells = bpw@np.arange(0, bpw.shape[-1])
+else:
+    def measure_cl_function(alm1, alm2):
+        return hp.alm2cl(alm1, alm2)[:args.lmax+1] / w_fac_kg
+
+    ells = np.arange(0, args.lmax+1)
 
 for n, i in enumerate(sim_ids2process):
     print(f"Reading kappa sim {i}")
@@ -152,12 +167,17 @@ for n, i in enumerate(sim_ids2process):
     input_kappa_alm_kmask = hp.map2alm(input_kappa_alm * kappa_mask_final, lmax=lmax)
     input_kappa_alm_lssmask = hp.map2alm(input_kappa_alm * lss_mask_final, lmax=lmax)
 
-    cl_outputs[n, 0, :lmax+1] = hp.alm2cl(recon_alm, input_kappa_alm_lssmask)[:args.lmax+1] / w_fac_kg
-    cl_outputs[n, 1, :lmax+1] = hp.alm2cl(input_kappa_alm_kmask, input_kappa_alm_lssmask)[:args.lmax+1] / w_fac_kg
-
+    cl_outputs[n, 0, :lmax+1] = measure_cl_function(recon_alm, input_kappa_alm_lssmask)
+    cl_outputs[n, 1, :lmax+1] = measure_cl_function(input_kappa_alm_kmask, input_kappa_alm_lssmask)
 
 if args.use_mpi:
     cl_outputs = comm.gather(cl_outputs, root=0)
-    if rank==0:
-        cl_outputs = np.concatenate(cl_outputs, axis=0)
-        np.savetxt(args.output_dir + args.output_prefix + f"norm_correction_{args.sim_ids}.dat", np.vstack([np.arange(0, args.lmax+1), np.mean(cl_outputs[:,0], axis=0)/np.mean(cl_outputs[:,1], axis=0)]).T, header="ell, norm_correction")
+
+if rank==0:
+    cl_outputs = np.concatenate(cl_outputs, axis=0)
+
+    mean_input_spec = np.mean(cl_outputs[:,1], axis=0)
+    mean_recon_spec = np.mean(cl_outputs[:,0], axis=0)
+    norm = np.mean(mean_input_spec/mean_recon_spec)
+    err_norm = norm * np.sqrt((np.std(cl_outputs[:,0], axis=0)**2/mean_recon_spec**2 + np.std(cl_outputs[:,1], axis=0)**2/mean_input_spec**2)/len(cl_outputs))
+    np.savetxt(args.output_dir + args.output_prefix + f"norm_correction_{args.sim_ids}.dat", np.vstack([ells, norm, err_norm]).T, header="ell, norm_correction, sigma(norm_correction)")
