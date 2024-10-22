@@ -40,8 +40,14 @@ parser.add_argument('--mask_kappa_recon', action="store_true", dest='mask_kappa_
 parser.add_argument('--kappa_mask_is_cmb_mask', action="store_true", dest='kappa_mask_is_cmb_mask', default=False, help='Indicate that the provided kappa mask is the CMB mask, and the effective kappa mask is the square of this mask.')
 parser.add_argument('--use_joined_mask_kappa', action="store_true", dest='use_joined_mask_kappa', default=False, help='Use the joined mask for kappa.')
 parser.add_argument('--use_joined_mask_lss', action="store_true", dest='use_joined_mask_lss', default=False, help='Use the joined mask for the LSS tracer.')
+
 parser.add_argument('--use_namaster', action="store_true", dest='use_namaster', default=False, help='Use NaMaster for power spectrum estimation.')
 parser.add_argument('--namaster_workspace_path', action="store", dest='namaster_workspace_path', default=None, help='Path to the NaMaster workspace file.')
+
+parser.add_argument('--bin_norm_correction', action="store_true", dest='bin_norm_correction', default=False, help='Compute the norm correction for a binned spectrum.')
+parser.add_argument('--bin_edges', action="store", dest='bin_edges', default=None, help='Bin edges for the binned spectrum. Specify in the format \'x1, x2, x3, ..., xn\' (lower edge is inclusive, upper edge is exclusive).')
+parser.add_argument('--ell_weighted_binning', action="store_true", dest='ell_weighted_binning', default=False, help='Weight bandpowers by ell before binning.')
+
 
 parser.add_argument('--save_sim_spectra', action="store_true", dest='save_sim_spectra', default=None, help='Whether to save the simulated power spectra.')
 
@@ -64,7 +70,8 @@ else:
 
 import healpy as hp
 import numpy as np
-from auxiliary import parse_ranges, phi2kappa, read_mask
+from scipy import stats
+from auxiliary import parse_ranges, phi2kappa, read_mask, bin_spectrum, trim_or_pad_cls
 
 ## load and process masks
 mask = read_mask(args.kappa_mask_path, args.nside)
@@ -116,8 +123,6 @@ if args.use_mpi:
 else:
     sim_ids2process = sim_ids_split
 
-cl_outputs = np.ones((len(sim_ids2process), 2,  args.lmax + 1))
-
 if args.rotate_kappa_alm:
     hp_rot_gc = hp.rotator.Rotator(coord=["G", "C"])
 
@@ -128,16 +133,28 @@ if args.use_namaster:
     wkg.read_from(args.namaster_workspace_path)
     print(f"Loaded Nmt workspace from path {args.namaster_workspace_path}.")
 
-    def measure_cl_function(alm1, alm2):
-        return wkg.decouple_cell(hp.alm2cl(alm1, alm2))
-
     bpw = wkg.get_bandpower_windows()[0]
-    ells = bpw@np.arange(0, bpw.shape[-1])
-else:
-    def measure_cl_function(alm1, alm2):
-        return hp.alm2cl(alm1, alm2)[:args.lmax+1] / w_fac_kg
+    ells = bpw @ np.arange(0, bpw.shape[-1])
 
-    ells = np.arange(0, args.lmax+1)
+    def measure_cl_function(alm1, alm2):
+        return wkg.decouple_cell([trim_or_pad_cls(hp.alm2cl(alm1, alm2), bpw.shape[-1], pad_value=0)])[0]
+
+elif args.bin_norm_correction:
+    bin_edges = np.array(args.bin_edges.split(',')).astype(int)
+    ells = bin_spectrum(np.arange(0, np.max(bin_edges) + 1), np.arange(0, np.max(bin_edges) + 1), bin_edges, ell_weighted=args.ell_weighted_binning)
+
+    def measure_cl_function(alm1, alm2):
+        cls = trim_or_pad_cls(hp.alm2cl(alm1, alm2), np.max(bin_edges), pad_value=np.nan)
+        return bin_spectrum(np.arange(0, len(cls)), cls, bin_edges, ell_weighted=args.ell_weighted_binning)
+
+else:
+    ells = np.arange(0, args.lmax + 1)
+
+    def measure_cl_function(alm1, alm2):
+        return trim_or_pad_cls(hp.alm2cl(alm1, alm2), args.lmax+1, pad_value=np.nan) / w_fac_kg
+
+
+cl_outputs = np.full((len(sim_ids2process), 2, len(ells)), np.nan)
 
 for n, i in enumerate(sim_ids2process):
     print(f"Reading kappa sim {i}")
