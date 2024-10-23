@@ -69,7 +69,6 @@ else:
 
 import healpy as hp
 import numpy as np
-from scipy import stats
 from auxiliary import parse_ranges, phi2kappa, read_mask, bin_spectrum, trim_or_pad_cls
 
 ## load and process masks
