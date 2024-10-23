@@ -137,7 +137,7 @@ if args.use_namaster:
     ells = bpw @ np.arange(0, bpw.shape[-1])
 
     def measure_cl_function(alm1, alm2):
-        return wkg.decouple_cell([trim_or_pad_cls(hp.alm2cl(alm1, alm2), bpw.shape[-1], pad_value=0)])[0]
+        return wkg.decouple_cell([trim_or_pad_cls(hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), bpw.shape[-1]])), bpw.shape[-1], pad_value=0)])[0]
 
 elif args.bin_norm_correction:
     assert args.bin_edges is not None, "If computing binned norm correction, bin edges must be provided."

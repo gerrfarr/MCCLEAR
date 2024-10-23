@@ -53,7 +53,7 @@ def trim_or_pad_cls(arr, target_length, pad_value=np.nan):
         return arr[:target_length]
     elif current_length < target_length:
         # Pad the array
-        padded_array = np.full(target_length, pad_value)
+        padded_array = np.full(target_length, pad_value, dtype=arr.dtype)
         padded_array[:current_length] = arr
         return padded_array
     else:
