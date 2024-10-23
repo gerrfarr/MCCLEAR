@@ -137,7 +137,7 @@ if args.use_namaster:
     ells = bpw @ np.arange(0, bpw.shape[-1])
 
     def measure_cl_function(alm1, alm2):
-        return wkg.decouple_cell([trim_or_pad_cls(hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), bpw.shape[-1]])), bpw.shape[-1], pad_value=0)])[0]
+        return wkg.decouple_cell(trim_or_pad_cls(hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), bpw.shape[-1]])), bpw.shape[-1], pad_value=0)[None,:])[0]
 
 elif args.bin_norm_correction:
     assert args.bin_edges is not None, "If computing binned norm correction, bin edges must be provided."
@@ -196,7 +196,7 @@ if args.use_mpi:
 
 if rank==0:
     if args.save_sim_spectra:
-        np.save(args.output_dir + args.output_prefix + f"sim_spectra_{args.sim_ids.replace(',', '+')}.npy", np.vstack([ells, cl_outputs[:,0], cl_outputs[:,1]]).T)
+        np.save(args.output_dir + args.output_prefix + f"sim_spectra_{args.sim_ids.replace(',', '+')}.npy", (ells, cl_outputs[:,0], cl_outputs[:,1]), allow_pickle=True)
     mean_input_spec = np.mean(cl_outputs[:,1], axis=0)
     mean_recon_spec = np.mean(cl_outputs[:,0], axis=0)
     norm = mean_input_spec/mean_recon_spec
