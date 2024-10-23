@@ -1,14 +1,15 @@
-sim_ids: 0-400
-n_sim_offset: -200
-planck_sims: True
-output_dir: /path/to/output
+sim_ids: 260-499,560-799
+n_sim_offset: -200 # this is the offset to be applied to the sim_ids to get the correct sim_ids for the Planck simulations (reconstruction ID = input ID + n_sim_offset)
+output_dir: /path/to/output/
+output_prefix: planck_PR4_
 
-kappa_recon_sims_path: /path/to/kappa_recon_sims
+kappa_recon_sims_path: /path/to/kappa_recon_sims/
 kappa_recon_sims_prefix: klm_sim_
 kappa_recon_sims_suffix: _p
-kappa_recon_id_format: '04'
+kappa_recon_id_format: '03'
+kappa_input_sims_hdu: 4 # if the input kappa maps are stored in a file wit several maps, specify the HDU number here
 
-kappa_input_sims_path: /path/to/kappa_input_sims
+kappa_input_sims_path: /path/to/kappa_input_sims/
 kappa_input_sims_prefix: ffp10_unlensed_scl_cmb_000_tebplm_mc_
 kappa_input_sims_suffix: ''
 kappa_input_id_format: '04'
@@ -24,4 +25,3 @@ mask_kappa_recon: True
 kappa_mask_is_cmb_mask: False
 use_joined_mask_kappa: False
 use_joined_mask_lss: True
-use_namaster: False

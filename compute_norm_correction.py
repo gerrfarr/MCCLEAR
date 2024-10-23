@@ -8,7 +8,6 @@ parser = argparse.ArgumentParser()
 # what to do
 parser.add_argument('--sim_ids', action="store", dest='sim_ids', default="0-399", type=str, help='Range of simulation IDs to use, can be a range separated by a dash or several ranges separated by a comma.')
 parser.add_argument('--n_sim_offset', action="store", dest='n_sim_offset', default=0, type=int, help='Offset between input and reconstruction simulation IDs (e.g., if input simulations are 0-399 and reconstruction simulations are 1000-1399, n_sim_offset=1000).')
-parser.add_argument("--planck_sims", dest='planck_sims', action='store_true', default=False, help='Use Planck lensing reconstruction simulations.')
 
 parser.add_argument('--use_mpi', action="store_true", dest='use_mpi', default=False, help='Use MPI for parallel processing.')
 parser.add_argument('--config_path', action="store", dest='config_path', default=file_path+"/config.yml", type=str, help='Path to the configuration file.')
@@ -155,7 +154,7 @@ else:
         return trim_or_pad_cls(hp.alm2cl(alm1, alm2, lmax=min([hp.Alm.getlmax(alm1.size), hp.Alm.getlmax(alm2.size), args.lmax])) / w_fac_kg, args.lmax+1, pad_value=np.nan)
 
 
-cl_outputs = np.full((len(sim_ids2process), 2, len(ells)), np.nan)
+cl_outputs = np.full((len(sim_ids2process), 2, len(ells)), np.nan, dtype=float)
 
 for n, i in enumerate(sim_ids2process):
     print(f"Reading kappa sim {i}")

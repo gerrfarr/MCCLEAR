@@ -1,0 +1,25 @@
+sim_ids: 0-400
+output_dir: /path/to/output/
+output_prefix: act_DR6_
+
+kappa_recon_sims_path: /path/to/kappa_recon_sims/
+kappa_recon_sims_prefix: kappa_alm_sim_act_dr6_lensing_v1_baseline_
+kappa_recon_sims_suffix: ''
+kappa_recon_id_format: '04'
+
+kappa_input_sims_path: /path/to/kappa_input_sims/
+kappa_input_sims_prefix: input_kappa_alm_sim_
+kappa_input_sims_suffix: ''
+kappa_input_id_format: '04'
+
+kappa_mask_path: /path/to/kappa_mask.fits
+lss_mask_path: /path/to/lss_mask.fits
+extra_mask: null
+
+nside: 2048
+lmax: 4000
+rotate_kappa_alm: False # this is only required if the mask is specified in ecliptic coordinates and the input kappa maps are in galactic coordinates (rotating the mask is discouraged due to numerical issues)
+mask_kappa_recon: False
+kappa_mask_is_cmb_mask: True
+use_joined_mask_kappa: False
+use_joined_mask_lss: True
