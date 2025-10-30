@@ -1,4 +1,4 @@
-sim_ids: 0-400
+sim_ids: 1-400
 output_dir: /path/to/output/
 output_prefix: act_DR6_
 
